@@ -1,113 +1,133 @@
+
 import React from 'react';
-import { ContactFormState, PhoneNumberType } from './types';
+import { Contact ,PhoneNumberType } from './types';
 import { useFormValidation } from './useFormValidation';
 
-interface ContactFormProps {
-  onAddContact: (contact: ContactFormState) => void;
-}
-
-const ContactForm: React.FC<ContactFormProps> = ({ onAddContact }) => {
-  const initialFormState: ContactFormState = {
+const ContactForm: React.FC<{ onAddContact: (contact: Contact) => void }> = ({ onAddContact }) => {
+  const { formState, errors, handleChange, validate } = useFormValidation({
     name: '',
     email: '',
     phoneNumber: '',
     phoneType: PhoneNumberType.Mobile,
-  };
+  });
 
-  const { formState, errors, handleChange, validate } = useFormValidation(initialFormState);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
     if (validate()) {
-      onAddContact(formState);
+      // // Generate a unique ID 
+      const newContact: Contact = {
+        ...formState,
+        id: Date.now(),
+      };
+      onAddContact(newContact);
       // Reset form state
-      setFormState(initialFormState);
+      handleChange({ target: { name: 'name', value: '' } } as any);
+      handleChange({ target: { name: 'email', value: '' } } as any);
+      handleChange({ target: { name: 'phoneNumber', value: '' } } as any);
+      handleChange({ target: { name: 'phoneType', value: PhoneNumberType.Mobile } } as any);
     }
   };
 
   return (
-    <div className="flex items-center justify-center p-12">
-      <div className="mx-auto w-full max-w-lg bg-white p-8 rounded-lg shadow-md">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="mb-5">
-            <label htmlFor="name" className="mb-3 block text-base font-medium text-[#07074D]">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Full Name"
-              value={formState.name}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-            />
-            {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
-          </div>
-
-          <div className="mb-5">
-            <label htmlFor="phone" className="mb-3 block text-base font-medium text-[#07074D]">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              id="phone"
-              placeholder="Enter your phone number"
-              value={formState.phoneNumber}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-            />
-            {errors.phoneNumber && <p className="text-red-600 text-sm">{errors.phoneNumber}</p>}
-          </div>
-
-          <div className="mb-5">
-            <label htmlFor="email" className="mb-3 block text-base font-medium text-[#07074D]">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter your email"
-              value={formState.email}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-            />
-            {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
-          </div>
-
-          <div className="mb-5">
-            <label htmlFor="phoneType" className="mb-3 block text-base font-medium text-[#07074D]">
-              Phone Type
-            </label>
-            <select
-              name="phoneType"
-              id="phoneType"
-              value={formState.phoneType}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-            >
-              {Object.keys(PhoneNumberType).map(key => (
-                <option key={key} value={PhoneNumberType[key as keyof typeof PhoneNumberType]}>
-                  {key}
-                </option>
-              ))}
-            </select>
-            {errors.phoneType && <p className="text-red-600 text-sm">{errors.phoneType}</p>}
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="w-full rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none hover:shadow-form"
-            >
-              Add Contact
-            </button>
-          </div>
-        </form>
+<form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 bg-white shadow-md rounded-md">
+      {/* Name Field */}
+      <div className="mb-4">
+        <label
+          htmlFor="name"
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
+          Name:
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={formState.name}
+          onChange={handleChange}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Enter your name"
+        />
+        {errors.name && (
+          <p className="mt-2 text-sm text-red-600">{errors.name}</p>
+        )}
       </div>
-    </div>
+
+      {/* Email Field */}
+      <div className="mb-4">
+        <label
+          htmlFor="email"
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
+          Email:
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formState.email}
+          onChange={handleChange}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Enter your email"
+        />
+        {errors.email && (
+          <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+        )}
+      </div>
+
+      {/* Phone Number Field */}
+      <div className="mb-4">
+        <label
+          htmlFor="phoneNumber"
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
+          Phone Number:
+        </label>
+        <input
+          type="text"
+          id="phoneNumber"
+          name="phoneNumber"
+          value={formState.phoneNumber}
+          onChange={handleChange}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Enter your phone number"
+        />
+        {errors.phoneNumber && (
+          <p className="mt-2 text-sm text-red-600">{errors.phoneNumber}</p>
+        )}
+      </div>
+
+      {/* Phone Type Field */}
+      <div className="mb-4">
+        <label
+          htmlFor="phoneType"
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
+          Phone Type:
+        </label>
+        <select
+          id="phoneType"
+          name="phoneType"
+          value={formState.phoneType}
+          onChange={handleChange}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        >
+          <option value={PhoneNumberType.Mobile}>Mobile</option>
+          <option value={PhoneNumberType.Home}>Home</option>
+          <option value={PhoneNumberType.Work}>Work</option>
+        </select>
+        {errors.phoneType && (
+          <p className="mt-2 text-sm text-red-600">{errors.phoneType}</p>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:ring-4 focus:ring-blue-300"
+      >
+        Add Contact
+      </button>
+    </form>
   );
 };
 
